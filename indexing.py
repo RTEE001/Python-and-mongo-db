@@ -15,6 +15,13 @@ def list_visitors():
 def delete_visitor(name):
     Visitor.objects(Visitor_name=name).delete()
 
+def delete_all():
+    Visitor.remove( { } )
+
+def visitor_details(id):
+    visitor = Visitor.objects(id=id)
+    return visitor
+
+    
 update_visitor
-visitor_details: Given a visitor’s id, return all information about that visitor.
-delete_all
+
