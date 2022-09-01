@@ -29,3 +29,8 @@ python3 mongo_db.py
 ```
 mongodb://<HOST>
 ```
+- To run the test, from the main directory:
+```
+cd tests
+python3 test_mongo_db.py
+```
