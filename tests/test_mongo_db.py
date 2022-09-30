@@ -1,5 +1,7 @@
+from unittest import mock
+from mongoengine import connect, disconnect
 import unittest
-from src.mongo_db import (
+from src.mongo_functions import (
     Visitor,
     create_visitor,
     visitor_details,
@@ -8,84 +10,96 @@ from src.mongo_db import (
     delete_visitor,
     delete_all,
 )
-
-
 class TestVisitor(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        connect('mongoenginetest', host='mongomock://localhost')
+
+    @classmethod
+    def tearDownClass(cls):
+       disconnect()
+    
     def test_create_visitor(self):
-        visitor_present = False
-        create_visitor("John", 22, "20-06-2022", "17:00", "James", "Good")
-
-        for visitor_object in Visitor.objects:
-            if visitor_object.visitor_name == "John":
-                visitor_present = True
-        self.assertTrue(visitor_present)
-
-    def test_visitor_details(self):
-
-        for visitor_object in Visitor.objects:
-            self.assertEqual(
-                visitor_object.id, visitor_details(visitor_object.id)["id"]
-            )
-            self.assertEqual(
-                visitor_object.visitor_name,
-                visitor_details(visitor_object.id)["visitor_name"],
-            )
-            self.assertEqual(
-                visitor_object.visitor_age,
-                visitor_details(visitor_object.id)["visitor_age"],
-            )
-            self.assertEqual(
-                visitor_object.date_of_visit,
-                visitor_details(visitor_object.id)["date_of_visit"],
-            )
-            self.assertEqual(
-                visitor_object.time_of_visit,
-                visitor_details(visitor_object.id)["time_of_visit"],
-            )
-            self.assertEqual(
-                visitor_object.comments, visitor_details(visitor_object.id)["comments"]
-            )
-
-    def test_list_visitors(self):
-        visitors = []
-        for visitor_object in Visitor.objects:
-            visitors.append(
-                {"id": visitor_object.id, "name": visitor_object.visitor_name}
-            )
-        self.assertEqual(visitors, list_visitors())
+        visitor = Visitor(visitor_name="Victor",
+        visitor_age=27,
+        date_of_visit="2019-02-02",
+        time_of_visit="17:00",
+        assistant="John",
+        comments='great person')
+        visitor.save()
+        fresh_pers = Visitor.objects().first()
+        self.assertEqual(fresh_pers.visitor_name, "Victor")
 
     def test_update_visitor(self):
-        create_visitor("Chuck", 22, "20-06-2022", "20:00", "Grace", "Good")
-        id = []
-        for visitor_object in Visitor.objects:
-            if visitor_object.visitor_name == "Chuck":
-                id.append(visitor_object.id)
-                update_visitor(
-                    id[0], "This was chuck", 22, "20-06-2022", "21:00", "Grace", "Good"
-                )
-                break
-        changed_name = False
-        for visitor_object in Visitor.objects:
-            if visitor_object.visitor_name == "This was chuck":
-                changed_name = True
-        self.assertTrue(changed_name)
+        visitor = Visitor(visitor_name="Chuck",
+        visitor_age=22,
+        date_of_visit="20-06-2022",
+        time_of_visit="20:00",
+        assistant="Grace",
+        comments="Good")
+        visitor.save()     
+        id = Visitor.objects.filter(visitor_name = "Chuck")[0].id
+        update_visitor(id, "James", 22, "20-06-2022", "21:00", "Grace", "Good")
+        self.assertEqual(Visitor.objects.filter(id = id)[0].visitor_name, "James")
+
+    def test_visitor_details(self):
+        visitor = Visitor(visitor_name="Louis",
+        visitor_age=32,
+        date_of_visit="25-06-2022",
+        time_of_visit="23:00",
+        assistant="Graca",
+        comments="Good mate")
+        visitor.save()     
+        id = Visitor.objects.filter(visitor_name = "Louis")[0].id
+        self.assertEqual(Visitor.objects.filter(id = id)[0].visitor_name, visitor_details(id)["visitor_name"])
+        self.assertEqual(Visitor.objects.filter(id = id)[0].visitor_age, visitor_details(id)["visitor_age"])
+        self.assertEqual(Visitor.objects.filter(id = id)[0].time_of_visit, visitor_details(id)["time_of_visit"])
+        self.assertEqual(Visitor.objects.filter(id = id)[0].date_of_visit, visitor_details(id)["date_of_visit"])
+        self.assertEqual(Visitor.objects.filter(id = id)[0].assistant, visitor_details(id)["assistant"])
+        self.assertEqual(Visitor.objects.filter(id = id)[0].comments, visitor_details(id)["comments"])
 
     def test_delete_visitor(self):
-        create_visitor("Loki", 22, "20-06-2022", "18:00", "Thor", "Good")
-        deleted = False
-        id = []
-        for visitor_object in Visitor.objects:
-            if visitor_object.visitor_name == "Loki":
-                id.append(visitor_object.id)
-                delete_visitor(id[0])
-                deleted = True
-                break
-        self.assertTrue(deleted)
-
+        visitor = Visitor(visitor_name="Loki",
+        visitor_age=22,
+        date_of_visit="22-06-2022",
+        time_of_visit="18:00",
+        assistant="Thor",
+        comments="Great")
+        visitor.save() 
+        self.assertTrue(len(Visitor.objects.filter(visitor_name = "Loki"))==1)
+        delete_visitor(Visitor.objects().first().id)
+        self.assertTrue(len(Visitor.objects.filter(visitor_name = "Loki"))==0)
+     
+      
     def test_delete_all(self):
+        self.assertNotEqual(len(Visitor.objects()), 0)
         delete_all()
         self.assertEqual(len(Visitor.objects()), 0)
 
+    def test_list_visitors(self):
+        visitor1 = Visitor(visitor_name="Travis",
+        visitor_age=33,
+        date_of_visit="25-07-2022",
+        time_of_visit="03:00",
+        assistant="Tree",
+        comments="bad mate")
+        visitor1.save()
+
+
+        visitor2 = Visitor(visitor_name="John",
+        visitor_age=23,
+        date_of_visit="25-09-2022",
+        time_of_visit="08:00",
+        assistant="Slim",
+        comments="bad soulmate")
+        visitor2.save()
+
+        visitors = []
+        for visitor in Visitor.objects:
+            visitors.append({"name": visitor.visitor_name, "id": visitor.id})
+
+        self.assertEqual(visitors, list_visitors())
 
 if __name__ == "__main__":
     unittest.main()
