@@ -1,4 +1,4 @@
-from mongo_connection import Visitor
+from src.mongo_connection import Visitor
 
 def create_visitor(name, age, date, time, assistant, comments):
     visitor = Visitor(
@@ -29,7 +29,7 @@ def delete_all():
 
 
 def visitor_details(id):
-    visitor= Visitor.objects(id=id):
+    visitor= Visitor.objects(id=id)[0]
     return {
             "id": visitor.id,
             "visitor_name": visitor.visitor_name,

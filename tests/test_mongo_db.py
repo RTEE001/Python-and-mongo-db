@@ -21,15 +21,8 @@ class TestVisitor(unittest.TestCase):
        disconnect()
     
     def test_create_visitor(self):
-        visitor = Visitor(visitor_name="Victor",
-        visitor_age=27,
-        date_of_visit="2019-02-02",
-        time_of_visit="17:00",
-        assistant="John",
-        comments='great person')
-        visitor.save()
-        fresh_pers = Visitor.objects().first()
-        self.assertEqual(fresh_pers.visitor_name, "Victor")
+        visitor = create_visitor("Victor", 27, "2019-02-02", "17:00", "John",'great person')
+        self.assertEqual(Visitor.objects.all().first().visitor_name, "Victor")
 
     def test_update_visitor(self):
         visitor = Visitor(visitor_name="Chuck",
