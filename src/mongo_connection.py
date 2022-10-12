@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 import os
-from mongoengine import connect
-from mongoengine import Document, connect, IntField, StringField
+from mongoengine import Document, connect, IntField, StringField, disconnect
 
 load_dotenv()
 HOST = os.getenv("HOST")
@@ -25,3 +24,4 @@ class Visitor(Document):
 
     meta = {"strict": False}
 
+disconnect()
