@@ -45,12 +45,14 @@ class TestVisitor(unittest.TestCase):
         comments="Good mate")
         visitor.save()     
         id = Visitor.objects.filter(visitor_name = "Louis")[0].id
-        self.assertEqual(Visitor.objects.filter(id = id)[0].visitor_name, visitor_details(id)["visitor_name"])
-        self.assertEqual(Visitor.objects.filter(id = id)[0].visitor_age, visitor_details(id)["visitor_age"])
-        self.assertEqual(Visitor.objects.filter(id = id)[0].time_of_visit, visitor_details(id)["time_of_visit"])
-        self.assertEqual(Visitor.objects.filter(id = id)[0].date_of_visit, visitor_details(id)["date_of_visit"])
-        self.assertEqual(Visitor.objects.filter(id = id)[0].assistant, visitor_details(id)["assistant"])
-        self.assertEqual(Visitor.objects.filter(id = id)[0].comments, visitor_details(id)["comments"])
+        visitor_by_code = Visitor.objects.filter(id = id)[0]
+        visitor_by_function = visitor_details(id)
+        self.assertEqual(visitor_by_code.visitor_name, visitor_by_function["visitor_name"])
+        self.assertEqual(visitor_by_code.visitor_age, visitor_by_function["visitor_age"])
+        self.assertEqual(visitor_by_code.time_of_visit, visitor_by_function["time_of_visit"])
+        self.assertEqual(visitor_by_code.date_of_visit, visitor_by_function["date_of_visit"])
+        self.assertEqual(visitor_by_code.assistant, visitor_by_function["assistant"])
+        self.assertEqual(visitor_by_code.comments, visitor_by_function["comments"])
 
     def test_delete_visitor(self):
         visitor = Visitor(visitor_name="Loki",
