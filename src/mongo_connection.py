@@ -13,6 +13,7 @@ def connect_to_database():
 
 connect_to_database()
 
+
 class Visitor(Document):
 
     visitor_name = StringField(max_length=200, required=True)
@@ -23,5 +24,6 @@ class Visitor(Document):
     comments = StringField(max_length=400, required=True)
 
     meta = {"strict": False}
+
 
 disconnect()
